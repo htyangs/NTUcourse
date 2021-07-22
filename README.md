@@ -7,7 +7,7 @@
 ### DEMO 
 
 
-<img src="https://user-images.githubusercontent.com/29053630/126669288-f5cc58b6-c458-4889-a954-b0af561df178.gif" width="500" height="300"/>
+<img src="https://user-images.githubusercontent.com/29053630/126669288-f5cc58b6-c458-4889-a954-b0af561df178.gif" width="600" height="400"/>
 
 # 安裝方法 
 ### Win 10
