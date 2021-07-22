@@ -1,0 +1,10 @@
+tk
+beautifulsoup4
+pandas
+requests
+xlrd
+pandastable
+numpy
+regex
+lxml
+xlwt

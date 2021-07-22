@@ -142,7 +142,6 @@ class Crawler():
         elif(target=='gym'):
             if(self.gym_num == 'X'):
                 return
-            print('gym',self.gym_num )
             pagenum=15
             para = {
             "current_sem": self.semester,
@@ -159,7 +158,6 @@ class Crawler():
         elif(target=='prog'):
             if(self.prog_num == 'X'):
                 return
-            print('prog_num',self.prog_num )
             pagenum=15
             para = {
             "current_sem": self.semester,
@@ -173,7 +171,6 @@ class Crawler():
             }            
             self.doc  = get('https://nol.ntu.edu.tw/nol/coursesearch/search_for_05_ec.php',params=para,headers = self.headers)
         elif(target=='common'):
-            print(self.keys,self.keys.encode('big5'))
             pagenum=150
             para = {
             "current_sem": self.semester,
