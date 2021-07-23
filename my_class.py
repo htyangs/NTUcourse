@@ -8,7 +8,10 @@ import tkinter as tk
 from tkinter.ttk import Combobox, Frame
 from tkinter import Toplevel,BOTH
 from pandastable import Table
-
+'''
+Created by Hao Tung Yang, if you have any question, please contact me:
+mail: b07508006@ntu.edu.tw
+'''
 class Crawler():
     def __init__(self):
         self.periodDict = {
