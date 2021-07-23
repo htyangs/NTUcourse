@@ -1,3 +1,4 @@
+
 # NTU選課小幫手 
 ### 特點
 * 針對能上課的時間，一次將通識課、體育課、學程系上必修選修列出來，自動匯出excel
@@ -7,7 +8,7 @@
 ### DEMO 
 
 
-<img src="https://user-images.githubusercontent.com/29053630/126669288-f5cc58b6-c458-4889-a954-b0af561df178.gif" width="600" height="400"/>
+<img src="https://user-images.githubusercontent.com/29053630/126736024-d4e45fd9-8138-471b-9d87-be8560269137.gif">
 
 # 安裝方法 
 ### Win 10
@@ -20,3 +21,4 @@
 ##### 三、 輸入不想要的課程關鍵詞，排除含有此關鍵詞的課程(利用空白做分隔)
 ##### 四、 勾選上課的時間，列出符合的課程(時間需要完全符合)
 ##### 五、 自動於同exe檔案的資料夾生成名為class_info.xls的excel檔案，並且顯示出excel表格
+
