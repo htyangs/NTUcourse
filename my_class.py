@@ -8,7 +8,6 @@ import tkinter as tk
 from tkinter.ttk import Combobox, Frame
 from tkinter import Toplevel,BOTH
 from pandastable import Table
-from threading import Thread
   
 class Crawler():
     def __init__(self):
@@ -253,26 +252,26 @@ class Crawler():
         
         self.message_label.configure(
         text="累績搜尋到{}堂課程，完成{}%".format(len(self.class_info_all),str(int(percent+100/14*(start_page+1)/(page+1)))))
-        self.window.update_idletasks()
+        self.message_label.update()    
         if(start_page<page):
             start_page+=1
             self.crawl_all(start_page=start_page,percent=percent,target=target)
 
 
     def crawl_control(self):
+        
         self.crawl_all(target='department',percent=0)
         self.crawl_all(target='gym',percent=100/14*1)
         self.crawl_all(target='prog',percent=100/14*2)
         for c in range(11):
             if(self.classVariables[c].get()==1):
-                print('c',c)
                 self.common = list(self.class_area.values())[c]
                 self.crawl_all(target='common',percent=100/14*(c+3))
                 if(c==0):
                     break
         self.message_label.configure(
         text="累績搜尋到{}堂課程，完成{}%".format(len(self.class_info_all),str(100)))
-        self.window.update_idletasks()
+        self.message_label.update()    
         return
         # self.show_result()
 
@@ -319,13 +318,10 @@ class Crawler():
                         self.proceed.update({'week'+str(week_time):'1'})
                         self.proceed.update({'proceed'+list(self.day_time_list_web.values())[class_time-1]:'1'})
             self.crawl_control()
-           # t1 = Thread(target=self.crawl_control)
-            # t1.start()
-           # t1.join()
             if(len(self.class_info_all)==0):
                 self.message_label.configure(
                 text="沒有符合條件的課程")
-                self.window.update_idletasks()                
+                self.message_label.update()                
                 return
             
             show_all()
