@@ -8,7 +8,7 @@ import tkinter as tk
 from tkinter.ttk import Combobox, Frame
 from tkinter import Toplevel,BOTH
 from pandastable import Table
-
+from threading import Thread
   
 class Crawler():
     def __init__(self):
@@ -29,6 +29,7 @@ class Crawler():
             "20:15": "C",
             "21:10": "D",
         }
+        self.proceed = {}
         self.periodKey = list(self.periodDict.keys())
 
         self.week_dict = {
@@ -69,6 +70,7 @@ class Crawler():
         }
         self.week_list = {'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'週一':1,'週二':2,'週三':3,'週四':4,'週五':5,'週六':6}
         self.day_time_list = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'A':11,'B':12,'C':13,'D':14}
+        self.day_time_list_web = {'0':'0','1':'1','2':'2','3':'3','4':'4','5':'5','6':'6','7':'7','8':'8','9':'9','10':'E','A':'11','B':'12','C':'13','D':'14'}
         self.first_data= True
         self.class_info_all = []
         self.getNecessaryInfo()
@@ -120,7 +122,7 @@ class Crawler():
         temp_no.update(program_list)
         self.program_list = temp_no
         
-    def crawl_all(self,target,start_page = 0):
+    def crawl_all(self,target,percent,start_page = 0):
         offset = 0
         if (target == 'department'):
             if(self.department == 'X'):
@@ -131,12 +133,13 @@ class Crawler():
             "dptname": self.department,
             'op':"S",
             "yearcode": '0',
-            "alltime": "yes",
-            "allproced": "yes",
+            "alltime": "no",
+            "allproced": "no",
             "page_cnt": "150",
             'startrec':str(start_page*pagenum),
             'coursename': self.keys.encode('big5')
             }
+            para.update(self.proceed)  
             self.doc = get('https://nol.ntu.edu.tw/nol/coursesearch/search_for_02_dpt.php',params=para,headers = self.headers)
             
         elif(target=='gym'):
@@ -144,16 +147,16 @@ class Crawler():
                 return
             pagenum=15
             para = {
+            "op": "S",
             "current_sem": self.semester,
             'cou_cname': self.keys.encode('big5') ,
-            "yearcode": self.gym_num,
-            "op": "S",
-            "cou_cname": "",
             "tea_cname": "",
-            "alltime": "yes",
-            "allproced": "yes",
+            "year_code": self.gym_num,
+            "alltime": "no",
+            "allproced": "no",
             'startrec':str(start_page*pagenum)
-            }            
+            }
+            para.update(self.proceed)              
             self.doc  = get('https://nol.ntu.edu.tw/nol/coursesearch/search_for_09_gym.php',params=para,headers = self.headers)
         elif(target=='prog'):
             if(self.prog_num == 'X'):
@@ -165,10 +168,11 @@ class Crawler():
             "ecnum": self.prog_num,
             "cou_cname": "",
             "tea_cname": "",
-            "alltime": "yes",
-            "allproced": "yes",
+            "alltime": "no",
+            "allproced": "no",
             'startrec':str(start_page*pagenum)
-            }            
+            }
+            para.update(self.proceed)              
             self.doc  = get('https://nol.ntu.edu.tw/nol/coursesearch/search_for_05_ec.php',params=para,headers = self.headers)
         elif(target=='common'):
             pagenum=150
@@ -177,17 +181,18 @@ class Crawler():
             'coursename': self.keys.encode('big5'),
             "cou_cname": "",
             "tea_cname": "",
-            "alltime": "yes",
-            "allproced": "yes",
+            "alltime": "no",
+            "allproced": "no",
             "classarea" : self.common,
             "page_cnt": "150",
             'startrec':str(start_page*pagenum)
-            }            
+            }
+            para.update(self.proceed)            
             self.doc  = get('https://nol.ntu.edu.tw/nol/coursesearch/search_for_03_co.php',params=para,headers = self.headers)
             offset = 1                    
         self.doc.encoding = 'big5'
         self.doc= self.doc.text
-        time.sleep(0.3)
+        time.sleep(0.4)
         
         try:
             all_class_num = int(pd.read_html(self.doc)[6][0][1].split()[1])
@@ -245,17 +250,36 @@ class Crawler():
             self.first_data = False
         else:
             self.class_info_all = self.class_info_all.append(self.class_info,ignore_index=True)
+        
         self.message_label.configure(
-        text="累績搜尋到{}堂課程".format(len(self.class_info_all)))
+        text="累績搜尋到{}堂課程，完成{}%".format(len(self.class_info_all),str(int(percent+100/14*(start_page+1)/(page+1)))))
         self.window.update_idletasks()
         if(start_page<page):
             start_page+=1
-            self.crawl_all(start_page=start_page,target=target)
+            self.crawl_all(start_page=start_page,percent=percent,target=target)
+
+
+    def crawl_control(self):
+        self.crawl_all(target='department',percent=0)
+        self.crawl_all(target='gym',percent=100/14*1)
+        self.crawl_all(target='prog',percent=100/14*2)
+        for c in range(11):
+            if(self.classVariables[c].get()==1):
+                print('c',c)
+                self.common = list(self.class_area.values())[c]
+                self.crawl_all(target='common',percent=100/14*(c+3))
+                if(c==0):
+                    break
+        self.message_label.configure(
+        text="累績搜尋到{}堂課程，完成{}%".format(len(self.class_info_all),str(100)))
+        self.window.update_idletasks()
+        return
+        # self.show_result()
+
 
     def windows(self):
         def define_layout(obj, cols=1, rows=1):
             def method(trg, col, row):
-
                 for c in range(cols):
                     trg.columnconfigure(c, weight=1)
                 for r in range(rows):
@@ -266,9 +290,18 @@ class Crawler():
             else:
                 trg = obj
                 method(trg, cols, rows)
-
+        def checkall():
+            for cb in range(1,len(self.class_pick)):
+                if (self.classVariables[0].get()==0):
+                    self.class_pick[cb].deselect()
+                if (self.classVariables[0].get()==1):
+                    self.class_pick[cb].select()
+        def show_all():
+            self.class_info_all.to_excel('class_info.xls')
+            app = TestApp(self.class_info_all)
+            app.mainloop()
         def start_to_crawl():
-            self.class_info_all = []
+            self.class_info = []
             self.first_data = True
             self.semester = comboboxSemester.get()
             self.department = self.dpt_dict[comboboxDepartment.get()]
@@ -282,21 +315,21 @@ class Crawler():
                 for class_time in range (1,16):
                     temp = week_time*15+class_time-16
                     self.select_time[week_time,class_time-1] = self.cbVariables[temp].get()
-            self.crawl_all(target='department')
-            self.crawl_all(target='gym')
-            self.crawl_all(target='prog')
+                    if(self.cbVariables[temp].get()==1):
+                        self.proceed.update({'week'+str(week_time):'1'})
+                        self.proceed.update({'proceed'+list(self.day_time_list_web.values())[class_time-1]:'1'})
+            self.crawl_control()
+           # t1 = Thread(target=self.crawl_control)
+            # t1.start()
+           # t1.join()
+            if(len(self.class_info_all)==0):
+                self.message_label.configure(
+                text="沒有符合條件的課程")
+                self.window.update_idletasks()                
+                return
             
-            for c in range(11):
-                if(classVariables[c].get()==1):
-                    self.common = list(self.class_area.values())[c]
-                    self.crawl_all(target='common')
-                    if(c==0):
-                        break
- 
-            # self.show_result()
-            self.class_info_all.to_excel('class_info.xls')
-            app = TestApp(self.class_info_all)
-            app.mainloop()
+            show_all()
+            
 
         window = tk.Tk()
         window.title('台大課程網搜尋小幫手')
@@ -366,16 +399,23 @@ class Crawler():
         enterword2 = tk.Entry(div3,textvariable=keys_no)
         enterword2.insert (0,'專題研究 服務學習')
         enterword2.grid(column=1, row=6, sticky=align_mode,padx=10,columnspan=6,pady=10)
-        # ---------------- 其他
+        # ---------------- 通識課程
 
-        classVariables={}
-        class_pick={}         
+        self.classVariables={}
+        self.class_pick={}         
         for cl in range(len(self.class_area)):
-            classVariables[cl] = tk.IntVar()
-            if(cl>len(self.class_area)/2):
-                class_pick[cl] = tk.Checkbutton(div3, variable=classVariables[cl],text =list(self.class_area.keys())[cl] ).grid(column=cl+1-int(len(self.class_area)/2), row=8, sticky="we",padx=4,pady=4)
+            self.classVariables[cl] = tk.IntVar()
+            if(cl==0):
+                
+                self.class_pick[cl] = tk.Checkbutton(div3, variable=self.classVariables[cl],text =list(self.class_area.keys())[cl],command=checkall )
+                self.class_pick[cl].grid(column=cl+1, row=7, sticky="we",padx=4,pady=4)
+            elif(cl>len(self.class_area)/2):
+                self.class_pick[cl] = tk.Checkbutton(div3, variable=self.classVariables[cl],text =list(self.class_area.keys())[cl] )
+                self.class_pick[cl].grid(column=cl+1-int(len(self.class_area)/2), row=8, sticky="we",padx=4,pady=4)
             else:
-                class_pick[cl] = tk.Checkbutton(div3, variable=classVariables[cl],text =list(self.class_area.keys())[cl] ).grid(column=cl+1, row=7, sticky="we",padx=4,pady=4)
+                self.class_pick[cl] = tk.Checkbutton(div3, variable=self.classVariables[cl],text =list(self.class_area.keys())[cl] )
+                self.class_pick[cl].grid(column=cl+1, row=7, sticky="we",padx=4,pady=4)
+        #print(self.class_pick[0],type(self.class_pick[0]))
         textFileName = tk.Label(div3 ,text="通識課程")#,font=(None, 15)
         textFileName.grid(row=7,column=0, sticky=align_mode,rowspan=2,padx=10,pady=10)
 
@@ -443,7 +483,7 @@ class TestApp(Frame):
         f = Frame(self.main)
         f.pack(fill=BOTH,expand=1)
         self.table = pt = Table(f, dataframe=data_frame,
-                                showtoolbar=True, showstatusbar=True)
+                                showtoolbar=False, showstatusbar=False)
         pt.show()
         return
 
