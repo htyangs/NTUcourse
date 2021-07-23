@@ -8,7 +8,7 @@
 ### DEMO 
 
 
-<img src="https://user-images.githubusercontent.com/29053630/126736024-d4e45fd9-8138-471b-9d87-be8560269137.gif">
+<img src="https://user-images.githubusercontent.com/29053630/126745433-d21afc0b-b1e5-4598-b690-821edd395d64.gif">
 
 # 安裝方法 
 ### Win 10
