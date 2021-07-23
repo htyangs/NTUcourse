@@ -8,7 +8,7 @@ import tkinter as tk
 from tkinter.ttk import Combobox, Frame
 from tkinter import Toplevel,BOTH
 from pandastable import Table
-  
+
 class Crawler():
     def __init__(self):
         self.periodDict = {
@@ -27,6 +27,7 @@ class Crawler():
             "19:20": "B",
             "20:15": "C",
             "21:10": "D",
+            "全選一天" : "全選一天" 
         }
         self.proceed = {}
         self.periodKey = list(self.periodDict.keys())
@@ -452,12 +453,14 @@ class Crawler():
         textFileName = tk.Label(div5, text="可以上課的時間",font=(None, 15))
         textFileName.grid(row=0, sticky=align_mode,columnspan=7)
         self.cbVariables={}
+        self.ccVariables={}
         cb={}
+        cc={}
         row_offset = 1
         for week_time in range(1,7):
             textFileName = tk.Label(div5, text=list(self.week_dict.keys())[week_time])
             textFileName.grid(column=week_time, row=row_offset, sticky=align_mode)
-        for class_time in range(1,16):
+        for class_time in range(1,17):
             textFileName = tk.Label(div5, text=list(self.periodDict.values())[class_time-1]+". "+list(self.periodDict.keys())[class_time-1])
             
             textFileName.grid(column=0, row=class_time+row_offset, sticky=align_mode)           
@@ -467,7 +470,10 @@ class Crawler():
                 self.cbVariables[temp] = tk.IntVar()
                 self.cbVariables[temp].set (False)
                 cb[temp] = tk.Checkbutton(div5, variable=self.cbVariables[temp]).grid(column=week_time, row=class_time+row_offset, sticky=align_mode)
-
+        for week_time in range(1,7):
+                self.ccVariables[temp] = tk.IntVar()
+                self.ccVariables[temp].set (False)
+                cc[temp] = tk.Checkbutton(div5, variable=self.ccVariables[week_time]).grid(column=week_time, row=16+row_offset, sticky=align_mode)
         # ----------------------------------- div4 ----------------------------------- #
 
         button = tk.Button(div4, text='開始搜尋', bg='green', fg='white',font=(None, 15))
