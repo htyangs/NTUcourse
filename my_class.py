@@ -30,7 +30,7 @@ class Crawler():
         }
         self.proceed = {}
         self.periodKey = list(self.periodDict.keys())
-
+        self.crawlnum = 15
         self.week_dict = {
             "全部": "all",
             "星期一": 1,
@@ -140,7 +140,23 @@ class Crawler():
             }
             para.update(self.proceed)  
             self.doc = get('https://nol.ntu.edu.tw/nol/coursesearch/search_for_02_dpt.php',params=para,headers = self.headers)
-            
+        if (target == 'department2'):
+            if(self.department == 'X'):
+                return
+            pagenum=150
+            para = {
+            "current_sem": self.semester,
+            "dptname": self.department2,
+            'op':"S",
+            "yearcode": '0',
+            "alltime": "no",
+            "allproced": "no",
+            "page_cnt": "150",
+            'startrec':str(start_page*pagenum),
+            'coursename': self.keys.encode('big5')
+            }
+            para.update(self.proceed)  
+            self.doc = get('https://nol.ntu.edu.tw/nol/coursesearch/search_for_02_dpt.php',params=para,headers = self.headers)            
         elif(target=='gym'):
             if(self.gym_num == 'X'):
                 return
@@ -251,7 +267,7 @@ class Crawler():
             self.class_info_all = self.class_info_all.append(self.class_info,ignore_index=True)
         
         self.message_label.configure(
-        text="累績搜尋到{}堂課程，完成{}%".format(len(self.class_info_all),str(int(percent+100/14*(start_page+1)/(page+1)))))
+        text="累績搜尋到{}堂課程，完成{}%".format(len(self.class_info_all),str(int(percent+100/self.crawlnum*(start_page+1)/(page+1)))))
         self.message_label.update()    
         if(start_page<page):
             start_page+=1
@@ -261,12 +277,13 @@ class Crawler():
     def crawl_control(self):
         
         self.crawl_all(target='department',percent=0)
-        self.crawl_all(target='gym',percent=100/14*1)
-        self.crawl_all(target='prog',percent=100/14*2)
+        self.crawl_all(target='department2',percent=0)
+        self.crawl_all(target='gym',percent=100/self.crawlnum*1)
+        self.crawl_all(target='prog',percent=100/self.crawlnum*2)
         for c in range(11):
             if(self.classVariables[c].get()==1):
                 self.common = list(self.class_area.values())[c]
-                self.crawl_all(target='common',percent=100/14*(c+3))
+                self.crawl_all(target='common',percent=100/self.crawlnum*(c+3))
                 if(c==0):
                     break
         self.message_label.configure(
@@ -304,6 +321,7 @@ class Crawler():
             self.first_data = True
             self.semester = comboboxSemester.get()
             self.department = self.dpt_dict[comboboxDepartment.get()]
+            self.department2 = self.dpt_dict[comboboxDepartment2.get()]
             self.gym_num = self.gym[comboboxGym.get()]
             self.prog_num = self.program_list[comboboxProgram.get()]
             self.keys = keys.get()
@@ -359,13 +377,19 @@ class Crawler():
         comboboxSemester.grid(column=1, row=0, sticky=align_mode,columnspan=6,padx=10,pady=10)
         comboboxSemester.current(0)
          # ----------------學院
-        textDepartment = tk.Label(div3, text="開課學院/系所")
+        textDepartment = tk.Label(div3, text="開課系所 1/2")
         textDepartment.grid(column=0, row=1, sticky=align_mode)
         comboboxDepartment = Combobox(div3,
                                     values=list(self.dpt_dict.keys()),
                                     state="readonly")
-        comboboxDepartment.grid(column=1, row=1, sticky=align_mode,columnspan=6,padx=10,pady=10)
+        comboboxDepartment.grid(column=1, row=1, sticky=align_mode,columnspan=3,padx=10,pady=10)
         comboboxDepartment.current(0)
+
+        comboboxDepartment2 = Combobox(div3,
+                                    values=list(self.dpt_dict.keys()),
+                                    state="readonly")
+        comboboxDepartment2.grid(column=4, row=1, sticky=align_mode,columnspan=3,padx=10,pady=10)
+        comboboxDepartment2.current(0)
         # ---------------- 體育
         textGym = tk.Label(div3, text="體育課程")
         textGym.grid(column=0, row=3, sticky=align_mode)
