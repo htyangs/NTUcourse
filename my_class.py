@@ -27,7 +27,7 @@ class Crawler():
             "19:20": "B",
             "20:15": "C",
             "21:10": "D",
-            "全選一天" : "全選一天" 
+            "全選" : "" 
         }
         self.proceed = {}
         self.periodKey = list(self.periodDict.keys())
@@ -308,11 +308,19 @@ class Crawler():
                 trg = obj
                 method(trg, cols, rows)
         def checkall():
-            for cb in range(1,len(self.class_pick)):
+            for n in range(1,len(self.class_pick)):
                 if (self.classVariables[0].get()==0):
-                    self.class_pick[cb].deselect()
+                    self.class_pick[n].deselect()
                 if (self.classVariables[0].get()==1):
-                    self.class_pick[cb].select()
+                    self.class_pick[n].select()
+        def checkallday():
+            for n in range(1,len(self.ccVariables)+1):
+                if (self.ccVariables[n].get()==0):
+                    for m in range(1,16):
+                        self.cb[n*15+m-16].deselect()
+                if (self.ccVariables[n].get()==1):
+                    for m in range(1,16):
+                        self.cb[n*15+m-16].select()   
         def show_all():
             self.class_info_all.to_excel('class_info.xls')
             app = TestApp(self.class_info_all)
@@ -454,8 +462,8 @@ class Crawler():
         textFileName.grid(row=0, sticky=align_mode,columnspan=7)
         self.cbVariables={}
         self.ccVariables={}
-        cb={}
-        cc={}
+        self.cb={}
+        self.cc={}
         row_offset = 1
         for week_time in range(1,7):
             textFileName = tk.Label(div5, text=list(self.week_dict.keys())[week_time])
@@ -469,11 +477,13 @@ class Crawler():
                 temp = week_time*15+class_time-16
                 self.cbVariables[temp] = tk.IntVar()
                 self.cbVariables[temp].set (False)
-                cb[temp] = tk.Checkbutton(div5, variable=self.cbVariables[temp]).grid(column=week_time, row=class_time+row_offset, sticky=align_mode)
-        for week_time in range(1,7):
-                self.ccVariables[temp] = tk.IntVar()
-                self.ccVariables[temp].set (False)
-                cc[temp] = tk.Checkbutton(div5, variable=self.ccVariables[week_time]).grid(column=week_time, row=16+row_offset, sticky=align_mode)
+                self.cb[temp] = tk.Checkbutton(div5, variable=self.cbVariables[temp])
+                self.cb[temp].grid(column=week_time, row=class_time+row_offset, sticky=align_mode)
+        for wt in range(1,7):
+                self.ccVariables[wt] = tk.IntVar()
+                self.ccVariables[wt].set (False)
+                self.cc[wt] = tk.Checkbutton(div5, variable=self.ccVariables[wt],command=checkallday)
+                self.cc[wt].grid(column=wt, row=16+row_offset, sticky=align_mode)
         # ----------------------------------- div4 ----------------------------------- #
 
         button = tk.Button(div4, text='開始搜尋', bg='green', fg='white',font=(None, 15))
