@@ -1,3 +1,23 @@
 
 *.xls
 *.xls
+build/my_class/xref-my_class.html
+build/my_class/warn-my_class.txt
+build/my_class/Tree-02.toc
+build/my_class/Tree-01.toc
+build/my_class/Tree-00.toc
+build/my_class/PYZ-00.toc
+build/my_class/PYZ-00.pyz
+build/my_class/PKG-00.toc
+build/my_class/PKG-00.pkg
+build/my_class/my_class.exe.manifest
+build/my_class/localpycos/struct.pyo
+build/my_class/EXE-00.toc
+build/my_class/base_library.zip
+build/my_class/Analysis-00.toc
+dist/my_class.exe
+my_class.spec
+Pipfile
+Pipfile.lock
+course.ico
+MAP.spec

@@ -257,7 +257,7 @@ class Crawler():
         self.doc.encoding = 'big5'
         self.doc= self.doc.text
         
-        time.sleep(0.4+random.uniform(0.1,0.3))
+        time.sleep(3.5+random.uniform(0.1,0.5))
         
         try:
             all_class_num = int(pd.read_html(self.doc)[6][0][1].split()[1])
