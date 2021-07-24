@@ -8,6 +8,7 @@ import tkinter as tk
 from tkinter.ttk import Combobox, Frame
 from tkinter import Toplevel,BOTH
 from pandastable import Table
+import random
 '''
 Created by Hao Tung Yang, if you have any question, please contact me:
 mail: b07508006@ntu.edu.tw
@@ -34,7 +35,7 @@ class Crawler():
         }
         self.proceed = {}
         self.periodKey = list(self.periodDict.keys())
-        self.crawlnum = 15
+        self.crawlnum = 20
         self.week_dict = {
             "全部": "all",
             "星期一": 1,
@@ -43,6 +44,14 @@ class Crawler():
             "星期四": 4,
             "星期五": 5,
             "星期六": 6
+        }
+        self.common_course_list = {
+        '全部 ': 'a',
+        '國文': '1',
+        '外文': '2',
+        '英文': '3',
+        '充當': '7',
+        '共同': '8',
         }
         self.class_area = {
         '全部 ': 'a',
@@ -71,6 +80,10 @@ class Crawler():
         '校隊班': '5',
         '進修學士班': '6',
         }
+        self.wantall = {
+            "符合上述條件課程": "0",
+            "全部能修的課程(資料多，速度較慢)": "1",
+        }
         self.week_list = {'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'週一':1,'週二':2,'週三':3,'週四':4,'週五':5,'週六':6}
         self.day_time_list = {'0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'A':11,'B':12,'C':13,'D':14}
         self.day_time_list_web = {'0':'0','1':'1','2':'2','3':'3','4':'4','5':'5','6':'6','7':'7','8':'8','9':'9','10':'E','A':'11','B':'12','C':'13','D':'14'}
@@ -89,6 +102,7 @@ class Crawler():
         semester_list = [
             option.text for option in semester_select.find_all('option')]
         self.semester_list = semester_list
+         # ---------------------------- Find department list ---------------------------- #
         dpt_select = soup.find(id="dptname")
         dpt_list = [
             option.text for option in dpt_select.find_all('option')]
@@ -104,7 +118,7 @@ class Crawler():
             if (i==0):
                 dpt_name_list[i] = dpt_list[i]
             else:
-                dpt_name_list[i] = str(dpt_list[i][4:].strip())
+                dpt_name_list[i] = str(dpt_list[i].strip())
         self.dpt_name_list = dpt_name_list
         dpt_dict = dict(zip(dpt_name_list, dpt_id_list))
         del dpt_dict['全部']
@@ -124,10 +138,26 @@ class Crawler():
         temp_no = {'無': 'X'}
         temp_no.update(program_list)
         self.program_list = temp_no
+
         
     def crawl_all(self,target,percent,start_page = 0):
         offset = 0
-        if (target == 'department'):
+        if(target == 'wantall'):
+            pagenum = 500
+            para = {
+            "current_sem": self.semester,
+            'cstype': '1',
+            "csname":  self.keys.encode('big5'),
+            "alltime": "no",
+            "allproced": "no",
+            "allsel": "yes",
+            "page_cnt": str(pagenum),
+            'startrec':str(start_page*pagenum),
+            'coursename': self.keys.encode('big5')
+            }
+            para.update(self.proceed)  
+            self.doc = get('https://nol.ntu.edu.tw/nol/coursesearch/search_result.php',params=para,headers = self.headers)            
+        elif (target == 'department'):
             if(self.department == 'X'):
                 return
             pagenum=150
@@ -144,7 +174,7 @@ class Crawler():
             }
             para.update(self.proceed)  
             self.doc = get('https://nol.ntu.edu.tw/nol/coursesearch/search_for_02_dpt.php',params=para,headers = self.headers)
-        if (target == 'department2'):
+        elif (target == 'department2'):
             if(self.department == 'X'):
                 return
             pagenum=150
@@ -208,10 +238,26 @@ class Crawler():
             }
             para.update(self.proceed)            
             self.doc  = get('https://nol.ntu.edu.tw/nol/coursesearch/search_for_03_co.php',params=para,headers = self.headers)
-            offset = 1                    
+            offset = 1 
+        elif(target=='commoncourse'):
+            pagenum=150
+            para = {
+            "current_sem": self.semester,
+            'coursename': self.keys.encode('big5'),
+            'couarea': self.common,
+            "alltime": "no",
+            "allproced": "no",
+            "page_cnt": "150",
+            'startrec':str(start_page*pagenum)
+            }
+            para.update(self.proceed)            
+            self.doc  = get('https://nol.ntu.edu.tw/nol/coursesearch/search_for_01_major.php',params=para,headers = self.headers)
+
+
         self.doc.encoding = 'big5'
         self.doc= self.doc.text
-        time.sleep(0.4)
+        
+        time.sleep(0.4+random.uniform(0.1,0.3))
         
         try:
             all_class_num = int(pd.read_html(self.doc)[6][0][1].split()[1])
@@ -223,7 +269,7 @@ class Crawler():
             self.class_info = pd.read_html(self.doc)[6] 
         if(offset==1):
             self.class_info.insert(9,'必/選修','通識', True)
-            
+
         self.class_info = self.class_info.drop(self.class_info.columns[17], axis=1)
         self.class_info = self.class_info.drop(self.class_info.columns[16], axis=1)
         self.class_info = self.class_info.drop(self.class_info.columns[8], axis=1)
@@ -259,7 +305,7 @@ class Crawler():
             if (want_class == False):
                 unwant.append(item+1)
         self.class_info = self.class_info.drop(labels=unwant, axis=0).reset_index(drop=True)
-        if(offset==1):
+        if(offset==1 ):
             self.class_info.iloc[0]['必/選修']='必/選修'
         headers = self.class_info.iloc[0]
         self.class_info =self.class_info.iloc[1:]
@@ -268,26 +314,47 @@ class Crawler():
             self.class_info_all = self.class_info
             self.first_data = False
         else:
-            self.class_info_all = self.class_info_all.append(self.class_info,ignore_index=True)
-        
-        self.message_label.configure(
-        text="累績搜尋到{}堂課程，完成{}%".format(len(self.class_info_all),str(int(percent+100/self.crawlnum*(start_page+1)/(page+1)))))
-        self.message_label.update()    
+            try:
+                self.class_info_all = self.class_info_all.append(self.class_info,ignore_index=True)
+            except:
+                print(self.class_info_all.iloc[0])
+                print(self.class_info.iloc[0])
+        #進度條
+        if(self.wantallcourse=='1'):
+            self.message_label.configure(
+            text="累績搜尋到{}堂課程，完成{}%".format(len(self.class_info_all),str(int(100*(start_page+1)/(page+1)))))
+            self.message_label.update()
+        else:              
+            self.message_label.configure(
+            text="累績搜尋到{}堂課程，完成{}%".format(len(self.class_info_all),str(int(percent+100/self.crawlnum*(start_page+1)/(page+1)))))
+            self.message_label.update()    
+        #搜尋迴圈
         if(start_page<page):
             start_page+=1
             self.crawl_all(start_page=start_page,percent=percent,target=target)
 
 
     def crawl_control(self):
-        
+        if (self.wantallcourse=='1'):
+            self.crawl_all(target='wantall',percent=0)
+            self.message_label.configure(
+            text="累績搜尋到{}堂課程，完成{}%".format(len(self.class_info_all),str(100)))
+            self.message_label.update() 
+            return
         self.crawl_all(target='department',percent=0)
-        self.crawl_all(target='department2',percent=0)
-        self.crawl_all(target='gym',percent=100/self.crawlnum*1)
-        self.crawl_all(target='prog',percent=100/self.crawlnum*2)
-        for c in range(11):
+        self.crawl_all(target='department2',percent=100/self.crawlnum*1)
+        self.crawl_all(target='gym',percent=100/self.crawlnum*2)
+        self.crawl_all(target='prog',percent=100/self.crawlnum*3)
+        for c in range(11): #逐一檢查框格並搜尋
             if(self.classVariables[c].get()==1):
                 self.common = list(self.class_area.values())[c]
-                self.crawl_all(target='common',percent=100/self.crawlnum*(c+3))
+                self.crawl_all(target='common',percent=100/self.crawlnum*(c+4))
+                if(c==0):
+                    break
+        for c in range(6):
+            if(self.commoncourseVariables[c].get()==1):
+                self.common = list(self.common_course_list.values())[c]
+                self.crawl_all(target='commoncourse',percent=100/self.crawlnum*(c+14))
                 if(c==0):
                     break
         self.message_label.configure(
@@ -310,13 +377,19 @@ class Crawler():
             else:
                 trg = obj
                 method(trg, cols, rows)
-        def checkall():
+        def checkall(): #通識
             for n in range(1,len(self.class_pick)):
                 if (self.classVariables[0].get()==0):
                     self.class_pick[n].deselect()
                 if (self.classVariables[0].get()==1):
                     self.class_pick[n].select()
-        def checkallday():
+        def checkallcourse(): #共同課程
+            for n in range(1,len(self.commoncourse_pick)):
+                if (self.commoncourseVariables[0].get()==0):
+                    self.commoncourse_pick[n].deselect()
+                if (self.commoncourseVariables[0].get()==1):
+                    self.commoncourse_pick[n].select()
+        def checkallday(): #全選可以上課的時間
             for n in range(1,len(self.ccVariables)+1):
                 if (self.ccVariables[n].get()==0):
                     for m in range(1,16):
@@ -324,6 +397,21 @@ class Crawler():
                 if (self.ccVariables[n].get()==1):
                     for m in range(1,16):
                         self.cb[n*15+m-16].select()   
+        def diasble_all(event): #鎖定
+            if(self.wantall[comboboxWantall.get()]=='1'):
+                cur_state = 'disabled'
+                self.commoncourse_pick[0].select()
+                self.class_pick[0].select()
+            else:
+                cur_state = 'readonly'
+                self.commoncourse_pick[0].deselect()
+                self.class_pick[0].deselect()  
+            checkallcourse()
+            checkall()        
+            comboboxDepartment.configure(state=cur_state)
+            comboboxDepartment2.configure(state=cur_state)
+            comboboxGym.configure(state=cur_state)
+            comboboxProgram.configure(state=cur_state)       
         def show_all():
             self.class_info_all.to_excel('class_info.xls')
             app = TestApp(self.class_info_all)
@@ -332,6 +420,7 @@ class Crawler():
             self.class_info = []
             self.first_data = True
             self.semester = comboboxSemester.get()
+            self.wantallcourse = self.wantall[comboboxWantall.get()]
             self.department = self.dpt_dict[comboboxDepartment.get()]
             self.department2 = self.dpt_dict[comboboxDepartment2.get()]
             self.gym_num = self.gym[comboboxGym.get()]
@@ -389,7 +478,7 @@ class Crawler():
         comboboxSemester.grid(column=1, row=0, sticky=align_mode,columnspan=6,padx=10,pady=10)
         comboboxSemester.current(0)
          # ----------------學院
-        textDepartment = tk.Label(div3, text="開課系所 1/2")
+        textDepartment = tk.Label(div3, text="開課系所一、二")
         textDepartment.grid(column=0, row=1, sticky=align_mode)
         comboboxDepartment = Combobox(div3,
                                     values=list(self.dpt_dict.keys()),
@@ -432,7 +521,6 @@ class Crawler():
         enterword2.insert (0,'專題研究 服務學習')
         enterword2.grid(column=1, row=6, sticky=align_mode,padx=10,columnspan=6,pady=10)
         # ---------------- 通識課程
-
         self.classVariables={}
         self.class_pick={}         
         for cl in range(len(self.class_area)):
@@ -451,7 +539,29 @@ class Crawler():
         textFileName = tk.Label(div3 ,text="通識課程")#,font=(None, 15)
         textFileName.grid(row=7,column=0, sticky=align_mode,rowspan=2,padx=10,pady=10)
 
-
+        # ---------------- 共同領域
+        self.commoncourseVariables={}
+        self.commoncourse_pick={}         
+        for cl in range(len(self.common_course_list)):
+            self.commoncourseVariables[cl] = tk.IntVar()
+            if(cl==0):
+                self.commoncourse_pick[cl] = tk.Checkbutton(div3, variable=self.commoncourseVariables[cl],text =list(self.common_course_list.keys())[cl],command=checkallcourse )
+                self.commoncourse_pick[cl].grid(column=cl+1, row=9, sticky="we",padx=4,pady=4)
+            else:
+                self.commoncourse_pick[cl] = tk.Checkbutton(div3, variable=self.commoncourseVariables[cl],text =list(self.common_course_list.keys())[cl] )
+                self.commoncourse_pick[cl].grid(column=cl+1, row=9, sticky="we",padx=4,pady=4)
+        #print(self.class_pick[0],type(self.class_pick[0]))
+        textFileName = tk.Label(div3 ,text="共同課程")#,font=(None, 15)
+        textFileName.grid(row=9,column=0, sticky=align_mode,rowspan=1,padx=10,pady=10)
+        # ---------------- 全部課程
+        textWantall = tk.Label(div3, text="直接搜尋全部")
+        textWantall.grid(column=0, row=10, sticky=align_mode,padx=10,pady=10)
+        comboboxWantall = Combobox(div3,
+                                    values=list(self.wantall.keys()),
+                                    state="readonly")
+        comboboxWantall.grid(column=1, row=10, sticky=align_mode,columnspan=6,padx=10,pady=10)
+        comboboxWantall.current(0)
+        comboboxWantall.bind("<<ComboboxSelected>>", diasble_all)
         # ----------------------------------- div3_2 ----------------------------------- #
         # ---------------- 顯示進度
         message_label = tk.Label(div3_2, bg='white',font=(None, 15))
@@ -472,7 +582,7 @@ class Crawler():
             textFileName = tk.Label(div5, text=list(self.week_dict.keys())[week_time])
             textFileName.grid(column=week_time, row=row_offset, sticky=align_mode)
         for class_time in range(1,17):
-            textFileName = tk.Label(div5, text=list(self.periodDict.values())[class_time-1]+". "+list(self.periodDict.keys())[class_time-1])
+            textFileName = tk.Label(div5, text=list(self.periodDict.values())[class_time-1]+"  "+list(self.periodDict.keys())[class_time-1])
             
             textFileName.grid(column=0, row=class_time+row_offset, sticky=align_mode)           
         for week_time in range(1,7):
