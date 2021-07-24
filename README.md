@@ -13,7 +13,7 @@
 
 # 安裝方法 
 ### Win 10
-#### 法一、下載程式後解壓縮，打開dist/my_class.exe後即可以直接運行
+#### 法一、打開my_class.exe後即可以直接運行
 ### Mac/Linux/Win 10
 #### 法二、於anaconda建立python 3.7環境，在下載資料夾輸入 pip install -r requirements.txt，直接運行python my_class.py
 # 使用方法
