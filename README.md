@@ -15,7 +15,7 @@
 ### Win 10
 #### 法一、打開my_class.exe後即可以直接運行
 ### Mac/Linux/Win 10
-#### 法二、於anaconda建立python 3.7環境，在下載資料夾輸入 pip install -r requirements.txt，直接運行python my_class.py
+#### 法二、於anaconda建立python 3.7環境，於cmd輸入conda activate 環境名稱，cd 下載資料夾，輸入 pip install -r requirements.txt，直接運行python my_class.py
 # 使用方法
 ##### 一、 選擇學期後以及 1.開課的學系(可選兩個) 2.體育課 3.學程課 4.通識課 5.共同課 (選擇為聯集) / or 直接搜尋全部課程(速度較慢)
 ##### 二、 輸入課程關鍵詞，在上方的課程中篩選出含有此關鍵詞的課程
