@@ -439,7 +439,7 @@ class Crawler():
             self.crawl_control()
             if(len(self.class_info_all)==0):
                 self.message_label.configure(
-                text="沒有符合條件的課程")
+                text="沒有符合條件的課程",font=('newspaper', 15))
                 self.message_label.update()                
                 return
             
@@ -469,20 +469,20 @@ class Crawler():
 
 
         # ----------------------------------- div3 ----------------------------------- #
-        textSemester = tk.Label(div3, text="學期")
+        textSemester = tk.Label(div3, text="學期",font=('newspaper', 10))
         textSemester.grid(column=0, row=0, sticky=align_mode)
 
         comboboxSemester = Combobox(div3,
                                     values=self.semester_list,
-                                    state="readonly")
+                                    state="readonly",font=('newspaper', 10))
         comboboxSemester.grid(column=1, row=0, sticky=align_mode,columnspan=6,padx=10,pady=10)
         comboboxSemester.current(0)
          # ----------------學院
-        textDepartment = tk.Label(div3, text="開課系所一、二")
+        textDepartment = tk.Label(div3, text="開課系所一、二",font=('newspaper', 10))
         textDepartment.grid(column=0, row=1, sticky=align_mode)
         comboboxDepartment = Combobox(div3,
                                     values=list(self.dpt_dict.keys()),
-                                    state="readonly")
+                                    state="readonly",font=('newspaper', 10))
         comboboxDepartment.grid(column=1, row=1, sticky=align_mode,columnspan=3,padx=10,pady=10)
         comboboxDepartment.current(0)
 
@@ -492,29 +492,29 @@ class Crawler():
         comboboxDepartment2.grid(column=4, row=1, sticky=align_mode,columnspan=3,padx=10,pady=10)
         comboboxDepartment2.current(0)
         # ---------------- 體育
-        textGym = tk.Label(div3, text="體育課程")
+        textGym = tk.Label(div3, text="體育課程",font=('newspaper', 10))
         textGym.grid(column=0, row=3, sticky=align_mode)
         comboboxGym = Combobox(div3,
                                     values=list(self.gym.keys()),
-                                    state="readonly")
+                                    state="readonly",font=('newspaper', 10))
         comboboxGym.grid(column=1, row=3, sticky=align_mode,columnspan=6,padx=10,pady=10)
         comboboxGym.current(0)
         # ---------------- 學程
-        textProgram = tk.Label(div3, text="學程")
+        textProgram = tk.Label(div3, text="學程",font=('newspaper', 10))
         textProgram.grid(column=0, row=4, sticky=align_mode)
         comboboxProgram = Combobox(div3,
                                     values=list(self.program_list.keys()),
-                                    state="readonly")
+                                    state="readonly",font=('newspaper', 10))
         comboboxProgram.grid(column=1, row=4, sticky=align_mode,columnspan=6,padx=10,pady=10)
         comboboxProgram.current(0)
         # ---------------- 關鍵詞搜索
-        textProgram = tk.Label(div3, text="課程包含關鍵詞")
+        textProgram = tk.Label(div3, text="課程包含關鍵詞",font=('newspaper', 10))
         textProgram.grid(column=0, row=5, sticky=align_mode)
         keys = tk.StringVar()
         enterword = tk.Entry(div3,textvariable=keys)
         enterword.grid(column=1, row=5, sticky=align_mode,padx=10,columnspan=6,pady=10)
         # ---------------- 排除關鍵詞
-        textProgram2 = tk.Label(div3, text="排除關鍵詞")
+        textProgram2 = tk.Label(div3, text="排除關鍵詞",font=('newspaper', 10))
         textProgram2.grid(column=0, row=6, sticky=align_mode)
         keys_no = tk.StringVar()
         enterword2 = tk.Entry(div3,textvariable=keys_no)
@@ -527,16 +527,16 @@ class Crawler():
             self.classVariables[cl] = tk.IntVar()
             if(cl==0):
                 
-                self.class_pick[cl] = tk.Checkbutton(div3, variable=self.classVariables[cl],text =list(self.class_area.keys())[cl],command=checkall )
+                self.class_pick[cl] = tk.Checkbutton(div3, variable=self.classVariables[cl],text =list(self.class_area.keys())[cl],command=checkall,font=('newspaper', 10) )
                 self.class_pick[cl].grid(column=cl+1, row=7, sticky="we",padx=4,pady=4)
             elif(cl>len(self.class_area)/2):
-                self.class_pick[cl] = tk.Checkbutton(div3, variable=self.classVariables[cl],text =list(self.class_area.keys())[cl] )
+                self.class_pick[cl] = tk.Checkbutton(div3, variable=self.classVariables[cl],text =list(self.class_area.keys())[cl] ,font=('newspaper', 10))
                 self.class_pick[cl].grid(column=cl+1-int(len(self.class_area)/2), row=8, sticky="we",padx=4,pady=4)
             else:
-                self.class_pick[cl] = tk.Checkbutton(div3, variable=self.classVariables[cl],text =list(self.class_area.keys())[cl] )
+                self.class_pick[cl] = tk.Checkbutton(div3, variable=self.classVariables[cl],text =list(self.class_area.keys())[cl],font=('newspaper', 10) )
                 self.class_pick[cl].grid(column=cl+1, row=7, sticky="we",padx=4,pady=4)
         #print(self.class_pick[0],type(self.class_pick[0]))
-        textFileName = tk.Label(div3 ,text="通識課程")#,font=(None, 15)
+        textFileName = tk.Label(div3 ,text="通識課程",font=('newspaper', 10))#,font=(None, 15)
         textFileName.grid(row=7,column=0, sticky=align_mode,rowspan=2,padx=10,pady=10)
 
         # ---------------- 共同領域
@@ -545,33 +545,33 @@ class Crawler():
         for cl in range(len(self.common_course_list)):
             self.commoncourseVariables[cl] = tk.IntVar()
             if(cl==0):
-                self.commoncourse_pick[cl] = tk.Checkbutton(div3, variable=self.commoncourseVariables[cl],text =list(self.common_course_list.keys())[cl],command=checkallcourse )
+                self.commoncourse_pick[cl] = tk.Checkbutton(div3, variable=self.commoncourseVariables[cl],text =list(self.common_course_list.keys())[cl],command=checkallcourse ,font=('newspaper', 10))
                 self.commoncourse_pick[cl].grid(column=cl+1, row=9, sticky="we",padx=4,pady=4)
             else:
-                self.commoncourse_pick[cl] = tk.Checkbutton(div3, variable=self.commoncourseVariables[cl],text =list(self.common_course_list.keys())[cl] )
+                self.commoncourse_pick[cl] = tk.Checkbutton(div3, variable=self.commoncourseVariables[cl],text =list(self.common_course_list.keys())[cl] ,font=('newspaper', 10))
                 self.commoncourse_pick[cl].grid(column=cl+1, row=9, sticky="we",padx=4,pady=4)
         #print(self.class_pick[0],type(self.class_pick[0]))
-        textFileName = tk.Label(div3 ,text="共同課程")#,font=(None, 15)
+        textFileName = tk.Label(div3 ,text="共同課程",font=('newspaper', 10))#,font=(None, 15)
         textFileName.grid(row=9,column=0, sticky=align_mode,rowspan=1,padx=10,pady=10)
         # ---------------- 全部課程
-        textWantall = tk.Label(div3, text="直接搜尋全部")
+        textWantall = tk.Label(div3, text="直接搜尋全部",font=('newspaper', 10))
         textWantall.grid(column=0, row=10, sticky=align_mode,padx=10,pady=10)
         comboboxWantall = Combobox(div3,
                                     values=list(self.wantall.keys()),
-                                    state="readonly")
+                                    state="readonly",font=('newspaper', 10))
         comboboxWantall.grid(column=1, row=10, sticky=align_mode,columnspan=6,padx=10,pady=10)
         comboboxWantall.current(0)
         comboboxWantall.bind("<<ComboboxSelected>>", diasble_all)
         # ----------------------------------- div3_2 ----------------------------------- #
         # ---------------- 顯示進度
-        message_label = tk.Label(div3_2, bg='white',font=(None, 15))
+        message_label = tk.Label(div3_2, bg='white',font=('newspaper', 15))
         message_label['height'] = int(button_height)
         message_label['width'] = int(select_width)
         message_label.grid(column=0, row=0, sticky=align_mode)
         self.message_label = message_label
 
          # ----------------------------------- div5 ----------------------------------- #
-        textFileName = tk.Label(div5, text="可以上課的時間",font=(None, 15))
+        textFileName = tk.Label(div5, text="可以上課的時間",font=('newspaper', 15))
         textFileName.grid(row=0, sticky=align_mode,columnspan=7)
         self.cbVariables={}
         self.ccVariables={}
@@ -579,10 +579,10 @@ class Crawler():
         self.cc={}
         row_offset = 1
         for week_time in range(1,7):
-            textFileName = tk.Label(div5, text=list(self.week_dict.keys())[week_time])
+            textFileName = tk.Label(div5, text=list(self.week_dict.keys())[week_time], font=('newspaper',10))
             textFileName.grid(column=week_time, row=row_offset, sticky=align_mode)
         for class_time in range(1,17):
-            textFileName = tk.Label(div5, text=list(self.periodDict.values())[class_time-1]+"  "+list(self.periodDict.keys())[class_time-1])
+            textFileName = tk.Label(div5, text=list(self.periodDict.values())[class_time-1]+"  "+list(self.periodDict.keys())[class_time-1], font=('newspaper',10))
             
             textFileName.grid(column=0, row=class_time+row_offset, sticky=align_mode)           
         for week_time in range(1,7):
@@ -599,7 +599,7 @@ class Crawler():
                 self.cc[wt].grid(column=wt, row=16+row_offset, sticky=align_mode)
         # ----------------------------------- div4 ----------------------------------- #
 
-        button = tk.Button(div4, text='開始搜尋', bg='green', fg='white',font=(None, 15))
+        button = tk.Button(div4, text='開始搜尋', bg='green', fg='white',font=('newspaper', 15))
         button.grid(column=0, row=0, sticky=align_mode)
         button['command'] = start_to_crawl
 
